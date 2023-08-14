@@ -61,8 +61,8 @@ impl Vec3{
     }
     pub fn transform(&self,width:u32,height:u32)->Self{
         Vec3{
-            x: (self.x+1.)*width as f64 /4.0,
-            y: (-self.y+1.)*height as f64 /4.0,
+            x: (self.x+1.)*width as f64 /2.0,
+            y: (-self.y+1.)*height as f64 /2.0,
             z: self.z
         }
     }
@@ -78,6 +78,7 @@ pub struct LineIter{
     x1:f64,
     x2:f64,
     current:f64,
+    xoy:i32
 }
 
 impl LineIter{
@@ -95,13 +96,13 @@ impl LineIter{
                 swap(&mut x1, &mut x2);
                 swap(&mut y1, &mut y2);
             }
-            LineIter { d:dx, start:x1, end:x2, x1:y1, x2:y2, current:x1-1.0}
+            LineIter { d:dx, start:x1, end:x2, x1:y1, x2:y2, current:x1-1.0,xoy:0}
         }else{
             if y1>y2{
                 swap(&mut x1, &mut x2);
                 swap(&mut y1, &mut y2);
             }
-            LineIter { d:dy, start:y1, end:y2, x1:x1, x2:x2, current:y1-1.0}
+            LineIter { d:dy, start:y1, end:y2, x1:x1, x2:x2, current:y1-1.0,xoy:1}
         }
 
     }
@@ -109,12 +110,15 @@ impl LineIter{
 impl Iterator for LineIter{
     type Item = (i32,i32);
     fn next(&mut self) -> Option<Self::Item> {
-        println!("{} {}",self.current,self.end);
         if self.current < self.end{
             self.current+=1.0;
-            let t = (self.current-self.start).abs() as f64/self.d;
+            let t = (self.current-self.start).abs()/self.d;
             let x = self.x1 - (self.x1- self.x2) * t;
-            return Some((to_i32(x),to_i32(t)));
+            if self.xoy==0{
+                return Some((to_i32(self.current),to_i32(x)));
+            }else {
+                return Some((to_i32(x),to_i32(self.current)));
+            }
         }else{
             None
         }

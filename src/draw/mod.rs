@@ -9,41 +9,15 @@ impl SoftRenderer{
 
     pub fn draw_line(&mut self,x1:f64,y1:f64,x2:f64,y2:f64,color:Color){
         self.canvas.set_draw_color(color);
-        let mut x1 = to_i32(x1);
-        let mut y1 = to_i32(y1);
-        let mut x2 = to_i32(x2);
-        let mut y2 = to_i32(y2);
-
-        let dx = (x1-x2).abs();
-        let dy =(y1-y2).abs();
-
-        if dx > dy{
-            if x1>x2{
-                swap(&mut x1, &mut x2);
-                swap(&mut y1, &mut y2);
-            }
-            for i in x1..x2{
-                let t = (i-x1).abs() as f64/dx as f64;
-                let y = y1 as f64 - (y1- y2) as f64 * t;
-                self.canvas.draw_point(Point::new(i,to_i32(y))).unwrap();
-            }
-        }else{
-            if y1>y2{
-                swap(&mut x1, &mut x2);
-                swap(&mut y1, &mut y2);
-            }
-            for i in y1..y2{
-                let t = (i-y1).abs() as f64/dy as f64;
-                let x = x1 as f64 - (x1- x2) as f64 * t;
-                self.canvas.draw_point(Point::new(to_i32(x),i)).unwrap();
-            }
+        let line = LineIter::new(x1,y1,x2,y2);
+        for i in line{
+            let (x,y) = i;
+            self.canvas.draw_point(Point::new(x,y)).unwrap();
         }
     }
 
     pub fn draw_triangle(&mut self,v1:Vec3,v2:Vec3,v3:Vec3,color:Color){
-        let to_i32 = |temp_x: f64|{
-            return format!("{:.1$}", temp_x, 0).parse::<i32>().unwrap();
-        };
+        self.canvas.set_draw_color(color);
         let mut v1 = v1;
         let mut v2 = v2;
         let mut v3 = v3;
@@ -56,9 +30,29 @@ impl SoftRenderer{
         if v3.y > v2.y{
             swap(&mut v3, &mut v2);
         }
-        let max_dy = to_i32(v1.y - v3.y).abs();
+        let mut line1 = LineIter::new(v1.x,v1.y,v3.x,v3.y);
+        let mut line2 = LineIter::new(v1.x,v1.y,v2.x,v2.y);
+        let mut line3 = LineIter::new(v2.x,v2.y,v3.x,v3.y);
         for i in to_i32(v3.y)..to_i32(v1.y){
-            
+            if i >= to_i32(v2.y){
+                let (mut x1,y1) = line1.next().unwrap();
+                let (mut x2,_) = line2.next().unwrap();
+                if x1 > x2{
+                    swap(&mut x1, &mut x2);
+                }
+                for j in x1..x2{
+                    self.canvas.draw_point(Point::new(j,y1)).unwrap();
+                }
+            }else {
+                let (mut x1,y1) = line1.next().unwrap();
+                let (mut x2,_) = line3.next().unwrap();
+                if x1 > x2{
+                    swap(&mut x1, &mut x2);
+                }
+                for j in x1..x2{
+                    self.canvas.draw_point(Point::new(j,y1)).unwrap();
+                }
+            }
         }
     }
 }
