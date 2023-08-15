@@ -11,12 +11,19 @@ pub fn main() {
     loop {
         sr.clear();
         for triangle in &m.triangles{
-            let v0 = m.vertexes[triangle[0] as usize].transform(width, height);
-            let v1 = m.vertexes[triangle[1] as usize].transform(width, height);
-            let v2 = m.vertexes[triangle[2] as usize].transform(width, height);
+            //let v0 = m.vertexes[triangle[0] as usize].transform(width, height);
+            //let v1 = m.vertexes[triangle[1] as usize].transform(width, height);
+            //let v2 = m.vertexes[triangle[2] as usize].transform(width, height);
             //draw triangle with v0 v1 v2 with random color
-            sr.draw_triangle(v0,v1,v2,Color::RGB(rand::random::<u8>(),rand::random::<u8>(),rand::random::<u8>()));
+            //sr.draw_triangle(v0,v1,v2,Color::WHITE);
+            //draw triangle with v0 v1 v2 with random color with draw_line()
+            //sr.draw_line(v0.x,v0.y,v1.x,v1.y,Color::WHITE);
+            //sr.draw_line(v1.x,v1.y,v2.x,v2.y,Color::WHITE);
+            //sr.draw_line(v2.x,v2.y,v0.x,v0.y,Color::WHITE);
+            //sr.draw_line(1., 1., 1., 1., Color::WHITE);
         }
+        sr.draw_triangle(Vec3::new(100.,0.,0.),Vec3::new(0.,200.,0.),Vec3::new(300.,100.,0.),Color::WHITE);
+
         sr.render();
         if sr.if_close_window(){
             break;

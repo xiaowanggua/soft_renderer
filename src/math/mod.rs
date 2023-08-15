@@ -91,6 +91,7 @@ impl LineIter{
         let dx = (x1-x2).abs();
         let dy =(y1-y2).abs();
 
+
         if dx > dy{
             if x1>x2{
                 swap(&mut x1, &mut x2);
