@@ -3,10 +3,8 @@ extern crate sdl2;
 pub mod draw;
 pub mod math;
 pub mod model;
-use sdl2::{event::Event, keyboard::Keycode, render::Canvas, video::Window, Sdl, VideoSubsystem, pixels::Color};
+use sdl2::{event::Event, keyboard::Keycode, render::Canvas, video::Window, pixels::Color};
 pub struct SoftRenderer {
-    sdl_context: Sdl,
-    video_subsystem: VideoSubsystem,
     canvas: Canvas<Window>,
     event_pump: sdl2::EventPump,
 }
@@ -23,8 +21,6 @@ impl SoftRenderer {
         canvas.set_draw_color(Color::BLACK);
         let event_pump = sdl_context.event_pump().unwrap();
         SoftRenderer {
-            sdl_context,
-            video_subsystem,
             canvas,
             event_pump,
         }

@@ -1,4 +1,4 @@
-use std::{mem::swap};
+use std::mem::swap;
 
 pub struct Vec2{
     pub x: f64,
@@ -45,7 +45,7 @@ impl std::ops::Mul<Vec2> for Vec2{
         self.x * rhs.x + self.y * rhs.y
     }
 }
-#[derive(Debug,Clone)]
+#[derive(Debug,Clone,Copy)]
 pub struct Vec3{
     pub x: f64,
     pub y: f64,
@@ -70,55 +70,88 @@ impl Vec3{
 pub fn to_i32(x:f64)->i32{
     return format!("{:.1$}", x, 0).parse::<i32>().unwrap();
 }
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct LineIter{
-    d:f64,
-    start:f64,
-    end:f64,
-    x1:f64,
-    x2:f64,
-    current:f64,
-    xoy:i32
+    pub start: i32,
+    y: f64,
+    d: f64,
+    current: i32,
+    counter: i32,
+    len: i32,
+    adder: i32,
+    xoy: bool,
 }
 
 impl LineIter{
-    pub fn new(x1:f64,y1:f64,x2:f64,y2:f64)->Self{
+    pub fn new(x1:f64,y1:f64,x2:f64,y2:f64,force:bool)->Self{
         let mut x1 = x1;
         let mut y1 = y1;
         let mut x2 = x2;
         let mut y2 = y2;
 
-        let dx = (x1-x2).abs();
-        let dy =(y1-y2).abs();
-
-
-        if dx > dy{
-            if x1>x2{
-                swap(&mut x1, &mut x2);
-                swap(&mut y1, &mut y2);
-            }
-            LineIter { d:dx, start:x1, end:x2, x1:y1, x2:y2, current:x1-1.0,xoy:0}
-        }else{
-            if y1>y2{
-                swap(&mut x1, &mut x2);
-                swap(&mut y1, &mut y2);
-            }
-            LineIter { d:dy, start:y1, end:y2, x1:x1, x2:x2, current:y1-1.0,xoy:1}
+        if y1 > y2{
+            swap(&mut x1, &mut x2);
+            swap(&mut y1, &mut y2);
         }
 
+        let ix1 = to_i32(x1);
+        let iy1 = to_i32(y1);
+        let ix2 = to_i32(x2);
+        let iy2 = to_i32(y2);
+        let dx = (x1-x2).abs();
+        let dy = (y1-y2).abs();
+
+        if dx >= dy && !force{
+            if x1 > x2{
+                LineIter{
+                    start: ix1,
+                    y: y1,
+                    d: (y2-y1)/(x2-x1),
+                    current: ix1 + 1,
+                    counter: 0,
+                    len: (ix1-ix2).abs(),
+                    adder: -1,
+                    xoy: true,
+                }
+            }else{
+                LineIter{
+                    start: ix1,
+                    y: y1,
+                    d: (y2-y1)/(x2-x1),
+                    current: to_i32(x1) - 1,
+                    counter: 0,
+                    len: (ix1 - ix2).abs(),
+                    adder: 1,
+                    xoy: true,
+                }
+            }
+
+        }else{
+            LineIter{
+                start: iy1,
+                y: x1,
+                d: (x2-x1)/(y2-y1),
+                current: iy1 - 1,
+                counter: 0,
+                len: (iy1 - iy2).abs(),
+                adder: 1,
+                xoy: false,
+            }
+        }
     }
 }
+
 impl Iterator for LineIter{
     type Item = (i32,i32);
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current < self.end{
-            self.current+=1.0;
-            let t = (self.current-self.start).abs()/self.d;
-            let x = self.x1 - (self.x1- self.x2) * t;
-            if self.xoy==0{
-                return Some((to_i32(self.current),to_i32(x)));
-            }else {
-                return Some((to_i32(x),to_i32(self.current)));
+        if self.counter <= self.len{
+            self.counter += 1;
+            self.current += self.adder;
+            let y = self.d * (self.current - self.start) as f64 + self.y;
+            if self.xoy{
+                Some((self.current,to_i32(y)))
+            }else{
+                Some((to_i32(y),self.current))
             }
         }else{
             None

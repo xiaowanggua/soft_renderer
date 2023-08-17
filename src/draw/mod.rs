@@ -13,7 +13,7 @@ impl SoftRenderer{
             self.canvas.draw_point(Point::new(to_i32(x1),to_i32(y1))).unwrap();
             return;
         }else{
-            let line = LineIter::new(x1,y1,x2,y2);
+            let line = LineIter::new(x1,y1,x2,y2,false);
             for i in line{
                 let (x,y) = i;
                 self.canvas.draw_point(Point::new(x,y)).unwrap();
@@ -22,10 +22,12 @@ impl SoftRenderer{
     }
 
     pub fn draw_triangle(&mut self,v1:Vec3,v2:Vec3,v3:Vec3,color:Color){
+        if v1.x == v2.x && v2.x == v3.x {return;}
         self.canvas.set_draw_color(color);
         let mut v1 = v1;
         let mut v2 = v2;
         let mut v3 = v3;
+        //println!("{:?},{:?},{:?}",v1,v2,v3);
         if v2.y > v1.y{
             swap(&mut v1, &mut v2);
         }
@@ -35,33 +37,36 @@ impl SoftRenderer{
         if v3.y > v2.y{
             swap(&mut v3, &mut v2);
         }
-        let mut line1 = LineIter::new(v1.x,v1.y,v3.x,v3.y);
-        let mut line2 = LineIter::new(v2.x,v2.y,v1.x,v1.y);
-        let mut line3 = LineIter::new(v3.x,v3.y,v2.x,v2.y);
 
-        for i in to_i32(v3.y)..to_i32(v1.y){
-            if i > to_i32(v2.y){
-                let (mut x1,y1) = line1.next().unwrap();
-                let (mut x2,y2) = line2.next().unwrap();
-                if x1 > x2{
-                    swap(&mut x1, &mut x2);
+        let height = v1.y - v3.y;
+        let mut current: f64 = 0.;
+        while current < height{
+            let k1 = current/height;
+            if v3.y + current <= v2.y{
+                let k2;
+                if v2.y == v3.y{k2 = 1.;}else{k2 =current/(v2.y - v3.y);};
+                let mut x1 = to_i32(v3.x + k1 * (v1.x - v3.x));
+                let mut x2: i32 = to_i32(v3.x + k2 * (v2.x - v3.x));
+                if x2 < x1{
+                    swap(&mut x1,&mut x2);
                 }
-                if y1 != y2{
-                    println!("{} {} {} {}",x1,y1,x2,y2);
-                }
-                for j in x1..x2{
-                    self.canvas.draw_point(Point::new(j,y1)).unwrap();
+                for i in x1..x2{
+                    self.canvas.draw_point(Point::new(i,to_i32(v3.y + current))).unwrap();
                 }
             }else{
-                let (mut x1,y1) = line1.next().unwrap();
-                let (mut x2,_) = line3.next().unwrap();
-                if x1 > x2{
-                    swap(&mut x1, &mut x2);
+                let k2;
+                if v1.y == v2.y{k2 = 1.;}else{k2 = (current - (v2.y - v3.y))/(v1.y - v2.y);};
+                let mut x1 = to_i32(v3.x + k1 * (v1.x - v3.x));
+                let mut x2 = to_i32(v2.x + k2 * (v1.x - v2.x));
+                if x2 < x1{
+                    swap(&mut x1,&mut x2);
                 }
-                for j in x1..x2{
-                    self.canvas.draw_point(Point::new(j,y1)).unwrap();
+                for i in x1..x2{
+                    self.canvas.draw_point(Point::new(i,to_i32(v3.y + current))).unwrap();
                 }
             }
+            current+=1.;
         }
     }
+
 }
