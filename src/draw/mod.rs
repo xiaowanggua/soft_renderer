@@ -2,10 +2,10 @@ use std::mem::swap;
 
 use sdl2::{pixels::Color, rect::Point};
 
-use crate::SoftRenderer;
+use crate::Renderer;
 use crate::math::*;
 
-impl SoftRenderer{
+impl Renderer{
 
     pub fn draw_line(&mut self,x1:f64,y1:f64,x2:f64,y2:f64,color:Color){
         self.canvas.set_draw_color(color);

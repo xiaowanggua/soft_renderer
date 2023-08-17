@@ -4,11 +4,11 @@ pub mod draw;
 pub mod math;
 pub mod model;
 use sdl2::{event::Event, keyboard::Keycode, render::Canvas, video::Window, pixels::Color};
-pub struct SoftRenderer {
+pub struct Renderer {
     canvas: Canvas<Window>,
     event_pump: sdl2::EventPump,
 }
-impl SoftRenderer {
+impl Renderer {
     pub fn new(window_name: &str, width: u32, height: u32) -> Self {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
@@ -20,7 +20,7 @@ impl SoftRenderer {
         let mut canvas = window.into_canvas().software().build().unwrap();
         canvas.set_draw_color(Color::BLACK);
         let event_pump = sdl_context.event_pump().unwrap();
-        SoftRenderer {
+        Renderer {
             canvas,
             event_pump,
         }

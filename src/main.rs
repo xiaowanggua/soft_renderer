@@ -1,6 +1,6 @@
-use learnrenderer::*;
-use learnrenderer::math::Vec3;
-use learnrenderer::model::*;
+use soft_renderer::*;
+use soft_renderer::math::Vec3;
+use soft_renderer::model::*;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 
@@ -8,7 +8,7 @@ pub fn main() {
     let width = 600;
     let height = 600;
     let m = Model::new(".\\african_head.obj");
-    let mut sr = SoftRenderer::new("learn",width,height);
+    let mut sr = Renderer::new("learn",width,height);
     loop {
         sr.clear();
         for triangle in &m.triangles{
