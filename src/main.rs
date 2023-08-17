@@ -1,8 +1,6 @@
 use soft_renderer::*;
-use soft_renderer::math::Vec3;
 use soft_renderer::model::*;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 
 pub fn main() {
     let width = 600;
